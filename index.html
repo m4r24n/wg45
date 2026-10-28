@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#e8f1ec">
+  <meta name="description" content="WG45 apartment cleaning and waste duties.">
+  <title>WG45</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root { color-scheme: light; font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #263f35; background: #e8f1ec; }
+    body { margin: 0; min-height: 100svh; background: #e4eee5 url('./limewash.svg') center / cover fixed; }
+    main { max-width: 1080px; margin: auto; padding: 76px 36px 140px; position: relative; }
+    h1 { margin: 0 0 38px; text-align: center; line-height: 0; position: relative; z-index: 3; }
+    h1 img { display: block; width: 310px; max-width: 85%; height: auto; margin: 0 auto; }
+    .boards { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; align-items: stretch; }
+    section { display: flex; flex-direction: column; background: #fbfdf9ed; border: 1px solid #d2dfd6; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 18px #314e3d04; }
+    header { padding: 25px 26px 23px; min-height: 95px; display: flex; flex-direction: column; justify-content: flex-start; border-bottom: 1px solid #dce5de; }
+    h2 { font-size: 20px; font-weight: 600; letter-spacing: -.4px; margin: 0; }
+    .period { display: block; font-size: 12px; color: #738178; margin-top: 9px; font-variant-numeric: tabular-nums; }
+    ul { list-style: none; margin: 0; padding: 0 26px; flex: 1; display: flex; flex-direction: column; }
+    #waste li { flex: 1; }
+    li { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 24px 0; border-bottom: 1px solid #e1e8e1; min-height: 81px; }
+    li:last-child { border-bottom: 0; }
+    .task { font-size: 15px; line-height: 1.4; }
+    .person { font-size: 14px; font-weight: 550; background: #eaf1e9; border: 1px solid #dce7db; border-radius: 6px; padding: 6px 11px; white-space: nowrap; }
+    .due { font-size: 11px; line-height: 1.5; color: #7a867d; display: block; margin-top: 5px; }
+    body::before { content: ''; position: fixed; z-index: 2; inset: 0; background: #10251c; opacity: 0; pointer-events: none; transition: opacity .25s; }
+    body.has-selection::before { opacity: .7; }
+    .boards li, .boards header { transition: opacity .25s; }
+    .has-selection .boards li.is-dimmed, .has-selection .boards header { opacity: .22; }
+    .has-selection h1 img { filter: drop-shadow(0 0 15px #f2ffe9aa); }
+    .countdown { display: none; color: #bc2929; font-size: 12px; font-weight: 650; font-variant-numeric: tabular-nums; line-height: 1.5; margin-top: 5px; }
+    .is-selected .countdown { display: block; animation: countdown-pulse 1.6s ease-in-out infinite; }
+    @keyframes countdown-pulse { 50% { opacity: .5; } }
+    .people-bar { position: fixed; z-index: 5; bottom: 18px; left: 50%; transform: translateX(-50%); max-width: calc(100% - 24px); padding: 7px; display: flex; flex-wrap: nowrap; gap: 5px; overflow-x: auto; border: 1px solid #cfdbce; border-radius: 14px; background: #f5f9f0f5; box-shadow: 0 5px 25px #1e3e2420; padding-bottom: max(7px, env(safe-area-inset-bottom)); }
+    .people-bar button { appearance: none; display: inline-flex; flex: 0 0 auto; align-items: center; gap: 8px; white-space: nowrap; border: 1px solid transparent; border-radius: 9px; padding: 5px 10px 5px 5px; background: transparent; color: #263f35; font: inherit; font-size: 13px; cursor: pointer; min-height: 44px; }
+    .people-bar button:hover { background: #e5eddf; }
+    .people-bar button[aria-pressed="true"] { background: #dce9d7; border-color: #95af94; }
+    .people-bar button:focus-visible { outline: 2px solid #365d43; outline-offset: -2px; }
+    .people-bar img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; }
+    .focus-layer { position: fixed; z-index: 4; inset: 220px 16px 100px; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+    .focus-layer[hidden] { display: none; }
+    .focus-card { pointer-events: auto; position: relative; width: 460px; max-width: 100%; max-height: 100%; overflow-y: auto; padding: 28px; border-radius: 20px; background: #f4f8ee; border: 1px solid #d7e5d2; box-shadow: 0 18px 70px #081b1840; text-align: center; animation: focus-enter .3s ease-out; }
+    .focus-portrait { display: block; width: 128px; height: 128px; object-fit: cover; border-radius: 50%; margin: 0 auto 14px; border: 3px solid #e0eadb; box-shadow: 0 0 30px #dbf0cf30; }
+    #focus-name { font-family: Georgia, serif; font-weight: 400; font-size: 28px; margin-bottom: 20px; }
+    .focus-close { position: absolute; top: 8px; right: 8px; width: 36px; height: 36px; border: 0; border-radius: 50%; background: transparent; color: #657765; font-size: 24px; cursor: pointer; }
+    .focus-close:hover { background: #e0eadb; }
+    #focus-tasks { padding: 0; }
+    #focus-tasks li { min-height: 55px; padding: 14px 0; text-align: left; gap: 12px; }
+    .typed-task { font-size: 15px; min-width: 0; }
+    .typing::after { content: ''; display: inline-block; height: 1em; width: 1px; background: currentColor; margin-left: 3px; vertical-align: -.1em; }
+    .focus-card .countdown { display: block; margin: 0; white-space: nowrap; font-size: 12px; color: #c92e32; text-shadow: 0 0 9px #e8494960; animation: countdown-pulse 1.6s ease-in-out infinite; }
+    @keyframes focus-enter { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: none; } }
+    @media (max-width: 680px) { .focus-layer { top: 155px; bottom: 95px; } .focus-card { padding: 22px; } .focus-portrait { width: 98px; height: 98px; } #focus-name { font-size: 26px; margin-bottom: 12px; } .focus-card .countdown { font-size: 11px; } }
+    @media (prefers-reduced-motion: reduce) { .is-selected .countdown, .focus-card, .focus-card .countdown { animation: none; } *, body::before { transition: none !important; } }
+    @media (max-width: 680px) { main { padding: 38px 20px 120px; } h1 { margin-bottom: 28px; } h1 img { width: 260px; } .boards { grid-template-columns: 1fr; gap: 22px; grid-auto-rows: 1fr; } header { padding: 22px; } ul { padding: 0 22px; } li { padding: 21px 0; min-height: 75px; } .people-bar { bottom: 10px; } }
+  </style>
+  <script src="./schedule.js" defer></script>
+  <script src="./ui.js" defer></script>
+</head>
+<body>
+  <main>
+    <h1><img src="./wg45-wordmark.webp" alt="WG45" width="2048" height="768" fetchpriority="high"></h1>
+    <div class="boards">
+      <section aria-labelledby="cleaning-heading">
+        <header><h2 id="cleaning-heading">Apartment Cleaning</h2><span class="period" id="week"></span></header>
+        <ul id="cleaning"></ul>
+      </section>
+      <section aria-labelledby="waste-heading">
+        <header><h2 id="waste-heading">Waste Cleaning</h2></header>
+        <ul id="waste"></ul>
+      </section>
+    </div>
+    <noscript>Enable JavaScript to see the current assignments.</noscript>
+  </main>
+  <div class="focus-layer" id="focus" hidden>
+    <div class="focus-card" role="region" aria-labelledby="focus-name">
+      <button class="focus-close" id="focus-close" type="button" aria-label="Close highlighted tasks">×</button>
+      <img class="focus-portrait" id="focus-portrait" alt="" width="128" height="128">
+      <h2 id="focus-name"></h2>
+      <ul id="focus-tasks"></ul>
+    </div>
+  </div>
+  <nav class="people-bar" aria-label="Highlight a flatmate’s tasks" id="people"></nav>
+</body>
+</html>
